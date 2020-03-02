@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mockcis
+  labels:
+    app: mockcis
+spec:
+  type: LoadBalancer
+  selector:
+    app: mockcis
+  ports:
+    - protocol: TCP
+      port: 80
+      name: http
+      targetPort: 8080
+
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mockcis
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mockcis
+    spec:
+      containers:
+        - name: mockcis
+          image: dptestacr.azurecr.io/mockcis
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
